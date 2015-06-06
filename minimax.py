@@ -1,4 +1,5 @@
 import copy
+import time
 import random
 
 # Webdata:
@@ -29,10 +30,7 @@ class Board:
         self.cols = cols_get_immutable(cols)
 
     def fill_web(self, webdata):
-        print webdata
         self.cols = cols_get_immutable(webdata)
-        print 'cols:'
-        print self.cols
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -55,7 +53,11 @@ class Board:
         newBoardCols[to].append(newBoardCols[fromCell].pop())
         newBoard = Board()
         newBoard.fill(self.colFree, self.freeFilled, self.colFinish, newBoardCols)
-        return (newBoard, (self.cols[fromCell][-1], 'work' + str(to)))
+        if self.cols[to][-1] == None:
+            destination = 'work' + str(to+1)
+        else:
+            destination = tuple_to_felt(self.cols[to][-1])
+        return (newBoard, (self.cols[fromCell][-1], destination, 'work' + str(to+1)))
 
     def move_col_free(self, fromCell, to):
         newBoardCols = cols_get_mutable(self.cols)
@@ -63,7 +65,7 @@ class Board:
         newBoardFree[to] = newBoardCols[fromCell].pop()
         newBoard = Board()
         newBoard.fill(newBoardFree, self.freeFilled + 1, self.colFinish, newBoardCols)
-        return (newBoard, (self.cols[fromCell][-1], 'temp' + str(to)))
+        return (newBoard, (self.cols[fromCell][-1], 'temp' + str(to+1), 'temp' + str(to+1),))
 
     def move_free_col(self, fromCell, to):
         newBoardCols = cols_get_mutable(self.cols)
@@ -72,7 +74,11 @@ class Board:
         newBoardFree[fromCell] = None
         newBoard = Board()
         newBoard.fill(newBoardFree, self.freeFilled - 1, self.colFinish, newBoardCols)
-        return (newBoard, (self.colFree[fromCell], 'work' + str(to)))
+        if self.cols[to][-1] == None:
+            destination = 'work' + str(to+1)
+        else:
+            destination = tuple_to_felt(self.cols[to][-1])
+        return (newBoard, (self.colFree[fromCell], destination, 'work' + str(to+1)))
 
     def move_free_finish(self, fromCell, to):
         newBoardFree = list(self.colFree)
@@ -81,7 +87,7 @@ class Board:
         newBoardFree[fromCell] = None
         newBoard = Board()
         newBoard.fill(newBoardFree, self.freeFilled - 1, newBoardFinish, self.cols)
-        return (newBoard, (self.colFree[fromCell], 'good' + str(to)))
+        return (newBoard, (self.colFree[fromCell], 'good' + str(to+1), 'good' + str(to+1)))
 
     def move_col_finish(self, fromCell, to):
         newBoardCols = cols_get_mutable(self.cols)
@@ -89,7 +95,7 @@ class Board:
         newBoardFinish[to] = newBoardCols[fromCell].pop()
         newBoard = Board()
         newBoard.fill(self.colFree, self.freeFilled, newBoardFinish, newBoardCols)
-        return (newBoard, (self.cols[fromCell][-1], 'good' + str(to)))
+        return (newBoard, (self.cols[fromCell][-1], 'good' + str(to+1), 'good' + str(to+1)))
 
     # Check valididy of moves
     def is_valid_cc(self, fromCell, to):
@@ -256,6 +262,18 @@ class Board:
         
         print ''
 
+def tuple_to_felt(card_tuple):
+    card, color = card_tuple
+    if card == 11:
+        card = "J"
+    if card == 12:
+        card = "Q"
+    if card == 13:
+        card = "K"
+    if card == 1:
+        card = "A"
+    return "c-"+str(card)+color
+
 def cols_get_mutable(cols):
     return [list(cols[0]), list(cols[1]), list(cols[2]), 
         list(cols[3]), list(cols[4]), list(cols[5]), 
@@ -331,12 +349,15 @@ def generate_web_data():
 def board_search(start_board): 
     allboards = {}
     boards = [(start_board, [])]
+    time_start = time.time()
     while len(boards) > 0:
+        if(time.time()-time_start > 180):
+            return(False, [])
         (board, path) = boards.pop(0)
         print board.heuristic()
         # board.display()
         if board.is_winning_board():
-            return (True, newPath)
+            return (True, path)
         newBoards = []
         for colA in range(8):
             for colB in range(colA):
@@ -427,3 +448,4 @@ def simulate():
         print 'No solution.'
 
 # play_in_terminal()
+# simulte()
