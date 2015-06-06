@@ -64,38 +64,47 @@ class TAS:
         num_moves = len(moves)
         num_finish = 0
         newMoves = []
-        while did_win:
-            if len(moves) == 0:
-                f.write('Won game in ' + str(num_moves) + ' moves.' + "\n-----\n\n")
-                return
-            print 'Won in ' + str(len(moves)) + ' moves. Executing...'
-            for move in moves:
-                print move
-            driver.find_element_by_id('pause').click()
-            time.sleep(1)
-            for move in moves:
-                card_tuple_jono, dst_pile, check_column = move
-                if not self.drag(driver, self.tuple_to_felt(card_tuple_jono), dst_pile, check_column):
-                    driver.find_element_by_id('pause').click()
-                    time.sleep(1)
-                    (piles, free, freeFilled, finish) = self.extract_piles(driver)
-                    board = minimax.Board()
-                    board.fill(free, freeFilled, finish, piles)
-                    board.display()
-                    (did_win, moves) = minimax.board_search(board)
-                    break
-                if dst_pile[0] == 'g':
-                    num_finish += 1
-                if num_finish >= 30:
-                    driver.find_element_by_xpath('//a[@title="Ctrl-A or Left-Click (off any cards)"]').click()
-                    driver.find_element_by_id('pause').click()
-                    time.sleep(1)
-                    (piles, free, freeFilled, finish) = self.extract_piles(driver)
-                    board = minimax.Board()
-                    board.fill(free, freeFilled, finish, piles)
-                    board.display()
-                    (did_win, moves) = minimax.board_search(board)
-                    break
+        # while did_win:
+        if len(moves) == 0:
+            f.write('Won game in ' + str(num_moves) + ' moves.' + "\n-----\n\n")
+            return
+        print 'Won in ' + str(len(moves)) + ' moves. Executing...'
+        for move in moves:
+            print move
+        print "Hello"
+        print 'Hi!'
+        driver.find_element_by_id('pause').click()
+        time.sleep(1)
+        print 'Moves'
+        for move in moves:
+            card_tuple_jono, dst_pile, check_column, source_column = move
+            source_pile = source_column[:4] + '[' + str(int(source_column[4:])-1) + ']'
+            dest_pile = check_column[:4] + '[' + str(int(check_column[4:])-1) + ']'
+            print 'window.the_game.' + source_pile + '._move_to_pile(window.the_game.' + source_pile + '.pile.length-1, 1, window.the_game.' + dest_pile + ')'
+            driver.execute_script('window.the_game.' + source_pile + '.move_to_pile(window.the_game.' + source_pile + '.pile.length-1, 1, window.the_game.' + dest_pile + ')')
+            
+        print '----'
+                # if not self.drag(driver, self.tuple_to_felt(card_tuple_jono), dst_pile, check_column):
+                #     driver.find_element_by_id('pause').click()
+                #     time.sleep(1)
+                #     (piles, free, freeFilled, finish) = self.extract_piles(driver)
+                #     board = minimax.Board()
+                #     board.fill(free, freeFilled, finish, piles)
+                #     board.display()
+                #     (did_win, moves) = minimax.board_search(board)
+                #     break
+                # if dst_pile[0] == 'g':
+                #     num_finish += 1
+                # if num_finish >= 30:
+                #     driver.find_element_by_xpath('//a[@title="Ctrl-A or Left-Click (off any cards)"]').click()
+                #     driver.find_element_by_id('pause').click()
+                #     time.sleep(1)
+                #     (piles, free, freeFilled, finish) = self.extract_piles(driver)
+                #     board = minimax.Board()
+                #     board.fill(free, freeFilled, finish, piles)
+                #     board.display()
+                #     (did_win, moves) = minimax.board_search(board)
+                #     break
 
     def login(self, driver):
         driver.find_element_by_id('user').send_keys('bongwater')

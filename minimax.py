@@ -57,7 +57,7 @@ class Board:
             destination = 'work' + str(to+1)
         else:
             destination = tuple_to_felt(self.cols[to][-1])
-        return (newBoard, (self.cols[fromCell][-1], destination, 'work' + str(to+1)))
+        return (newBoard, (self.cols[fromCell][-1], destination, 'work' + str(to+1), 'work' + str(fromCell+1)))
 
     def move_col_free(self, fromCell, to):
         newBoardCols = cols_get_mutable(self.cols)
@@ -65,7 +65,7 @@ class Board:
         newBoardFree[to] = newBoardCols[fromCell].pop()
         newBoard = Board()
         newBoard.fill(newBoardFree, self.freeFilled + 1, self.colFinish, newBoardCols)
-        return (newBoard, (self.cols[fromCell][-1], 'temp' + str(to+1), 'temp' + str(to+1),))
+        return (newBoard, (self.cols[fromCell][-1], 'temp' + str(to+1), 'temp' + str(to+1), 'work' + str(fromCell+1)))
 
     def move_free_col(self, fromCell, to):
         newBoardCols = cols_get_mutable(self.cols)
@@ -78,7 +78,7 @@ class Board:
             destination = 'work' + str(to+1)
         else:
             destination = tuple_to_felt(self.cols[to][-1])
-        return (newBoard, (self.colFree[fromCell], destination, 'work' + str(to+1)))
+        return (newBoard, (self.colFree[fromCell], destination, 'work' + str(to+1), 'temp' + str(fromCell+1)))
 
     def move_free_finish(self, fromCell, to):
         newBoardFree = list(self.colFree)
@@ -87,7 +87,7 @@ class Board:
         newBoardFree[fromCell] = None
         newBoard = Board()
         newBoard.fill(newBoardFree, self.freeFilled - 1, newBoardFinish, self.cols)
-        return (newBoard, (self.colFree[fromCell], 'good' + str(to+1), 'good' + str(to+1)))
+        return (newBoard, (self.colFree[fromCell], 'good' + str(to+1), 'good' + str(to+1), 'temp' + str(fromCell+1)))
 
     def move_col_finish(self, fromCell, to):
         newBoardCols = cols_get_mutable(self.cols)
@@ -95,7 +95,7 @@ class Board:
         newBoardFinish[to] = newBoardCols[fromCell].pop()
         newBoard = Board()
         newBoard.fill(self.colFree, self.freeFilled, newBoardFinish, newBoardCols)
-        return (newBoard, (self.cols[fromCell][-1], 'good' + str(to+1), 'good' + str(to+1)))
+        return (newBoard, (self.cols[fromCell][-1], 'good' + str(to+1), 'good' + str(to+1), 'work' + str(fromCell+1)))
 
     # Check valididy of moves
     def is_valid_cc(self, fromCell, to):
