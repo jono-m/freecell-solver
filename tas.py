@@ -31,7 +31,7 @@ class TAS:
 
         f = open('logfile.txt', 'a')
 
-        game_number = 4
+        game_number = 1
         while True:
             driver.get('http://greenfelt.net/freecell?game=' + str(game_number))
             try:
